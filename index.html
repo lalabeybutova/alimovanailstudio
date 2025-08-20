@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,7 +13,7 @@
       color: #333;
     }
     .overlay {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.88);
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
@@ -76,18 +76,19 @@
       padding: 10px;
       text-align: center;
     }
-    .icon {
-      width: 24px;
-      height: 24px;
-      vertical-align: middle;
-    }
     .delete-btn {
       cursor: pointer;
       color: red;
       font-weight: bold;
     }
+    .search-box {
+      margin: 10px 0;
+      width: 100%;
+      max-width: 300px;
+    }
     @media (max-width: 600px) {
       input, button { width: 90%; }
+      .search-box { width: 90%; }
     }
   </style>
 </head>
@@ -95,63 +96,66 @@
 <div class="overlay">
   <header>💅 Alimova Nail Studio</header>
 
-  <!-- Password Screen -->
+  <!-- Вход -->
   <div id="login">
-    <h2>🔒 Enter Password</h2>
-    <input type="password" id="password" placeholder="Enter password" />
-    <button onclick="checkPassword()">Login</button>
-    <p id="error" style="color:red; display:none;">Wrong password</p>
-    <button onclick="showChangePw()">Change Password</button>
+    <h2>🔒 Введите пароль</h2>
+    <input type="password" id="password" placeholder="Пароль" />
+    <button onclick="checkPassword()">Войти</button>
+    <p id="error" style="color:red; display:none;">Неверный пароль</p>
+    <button onclick="showChangePw()">Сменить пароль</button>
   </div>
 
-  <!-- Change Password Screen -->
+  <!-- Смена пароля -->
   <div id="changePwBox" style="display:none;">
-    <h2>🔑 Change Password</h2>
-    <input type="password" id="oldPw" placeholder="Old password" />
-    <input type="password" id="newPw" placeholder="New password" />
-    <input type="password" id="confirmPw" placeholder="Confirm new password" />
-    <button onclick="changePassword()">Save</button>
-    <button onclick="backToLogin()">Cancel</button>
-    <p id="pwError" style="color:red; display:none;">Error changing password</p>
+    <h2>🔑 Смена пароля</h2>
+    <input type="password" id="oldPw" placeholder="Старый пароль" />
+    <input type="password" id="newPw" placeholder="Новый пароль" />
+    <input type="password" id="confirmPw" placeholder="Подтвердите пароль" />
+    <button onclick="changePassword()">Сохранить</button>
+    <button onclick="backToLogin()">Отмена</button>
+    <p id="pwError" style="color:red; display:none;">Ошибка смены пароля</p>
   </div>
 
-  <!-- Main App -->
+  <!-- Приложение -->
   <div id="app">
     <div class="card">
-      <h2>📅 Booking Form</h2>
-      <input type="text" id="name" placeholder="Client Name" />
-      <input type="tel" id="phone" maxlength="10" placeholder="Phone (10 digits)" />
-      <input type="datetime-local" id="date" />
-      <input type="number" id="price" placeholder="Price" />
-      <button onclick="addBooking()">Add Booking</button>
+      <h2>📅 Запись клиента</h2>
+      <input type="text" id="name" placeholder="Имя клиента" />
+      <input type="tel" id="phone" maxlength="10" placeholder="Телефон (10 цифр)" />
+      <input type="date" id="date" />
+      <input type="time" id="time" />
+      <input type="number" id="price" placeholder="Цена (NOK)" />
+      <button onclick="addBooking()">Добавить запись</button>
     </div>
 
     <div class="card">
-      <h2>📋 Bookings</h2>
+      <h2>📋 Все записи</h2>
+      <input type="text" class="search-box" id="searchAll" placeholder="🔍 Поиск по имени..." oninput="renderBookings()" />
       <table id="bookingTable">
-        <tr><th>Name</th><th>Phone</th><th>Date</th><th>Price</th></tr>
+        <tr><th>Имя</th><th>Телефон</th><th>Дата</th><th>Время</th><th>Цена</th></tr>
       </table>
     </div>
 
     <div class="card">
-      <h2>🔔 Today’s Appointments</h2>
+      <h2>🔔 Записи на сегодня</h2>
+      <input type="text" class="search-box" id="searchToday" placeholder="🔍 Поиск по имени..." oninput="renderToday()" />
       <table id="todayTable">
-        <tr><th>Name</th><th>Phone</th><th>Time</th><th>Action</th></tr>
+        <tr><th>Имя</th><th>Телефон</th><th>Время</th><th>Действие</th></tr>
       </table>
     </div>
 
     <div class="card">
-      <h2>📊 Revenue</h2>
-      <p id="dailyRevenue">Today: $0</p>
-      <p id="monthlyRevenue">This Month: $0</p>
+      <h2>📊 Доход</h2>
+      <p id="dailyRevenue">Сегодня: 0 NOK</p>
+      <p id="monthlyRevenue">Этот месяц: 0 NOK</p>
     </div>
 
-    <button onclick="logout()">🚪 Logout</button>
+    <button onclick="logout()">🚪 Выйти</button>
   </div>
 </div>
 
 <script>
-  // Password handling
+  // Пароль
   let CORRECT_PASSWORD = localStorage.getItem("password") || "4565";
 
   function checkPassword() {
@@ -183,7 +187,7 @@
     if (oldPw === CORRECT_PASSWORD && newPw === confirmPw && newPw) {
       CORRECT_PASSWORD = newPw;
       localStorage.setItem("password", newPw);
-      alert("Password changed successfully!");
+      alert("Пароль успешно изменён!");
       backToLogin();
     } else {
       document.getElementById("pwError").style.display = "block";
@@ -195,17 +199,27 @@
     document.getElementById("login").style.display = "flex";
   }
 
-  // Booking handling
+  // Форматирование времени в 24ч
+  function formatTime24(t) {
+    if (!t) return "";
+    const [h, m] = t.split(":");
+    return ("0" + h).slice(-2) + ":" + ("0" + m).slice(-2);
+  }
+
+  // Записи
   let bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
 
   function addBooking() {
     const name = document.getElementById("name").value;
     const phone = document.getElementById("phone").value;
     const date = document.getElementById("date").value;
+    const time = document.getElementById("time").value;
     const price = parseFloat(document.getElementById("price").value || 0);
 
-    if (name && phone && date) {
-      bookings.push({ name, phone, date, price });
+    if (name && phone && date && time) {
+      const formattedTime = formatTime24(time);
+      const dateTime = date + "T" + formattedTime;
+      bookings.push({ name, phone, date, time: formattedTime, dateTime, price });
       localStorage.setItem("bookings", JSON.stringify(bookings));
       renderBookings();
       renderToday();
@@ -213,33 +227,36 @@
   }
 
   function renderBookings() {
+    const search = document.getElementById("searchAll").value.toLowerCase();
     const table = document.getElementById("bookingTable");
-    table.innerHTML = "<tr><th>Name</th><th>Phone</th><th>Date</th><th>Price</th></tr>";
-    bookings.forEach(b => {
-      table.innerHTML += `<tr><td>${b.name}</td><td>${b.phone}</td><td>${b.date}</td><td>$${b.price}</td></tr>`;
-    });
+    table.innerHTML = "<tr><th>Имя</th><th>Телефон</th><th>Дата</th><th>Время</th><th>Цена</th></tr>";
+    bookings
+      .filter(b => b.name.toLowerCase().includes(search))
+      .forEach(b => {
+        table.innerHTML += `<tr><td>${b.name}</td><td>${b.phone}</td><td>${b.date}</td><td>${formatTime24(b.time)}</td><td>${b.price} NOK</td></tr>`;
+      });
   }
 
   function renderToday() {
     const today = new Date().toISOString().split("T")[0];
+    const search = document.getElementById("searchToday").value.toLowerCase();
     const table = document.getElementById("todayTable");
-    table.innerHTML = "<tr><th>Name</th><th>Phone</th><th>Time</th><th>Action</th></tr>";
+    table.innerHTML = "<tr><th>Имя</th><th>Телефон</th><th>Время</th><th>Действие</th></tr>";
     let todayRevenue = 0;
 
     bookings.forEach((b, i) => {
-      if (b.date.startsWith(today)) {
-        const time = b.date.split("T")[1];
+      if (b.date === today && b.name.toLowerCase().includes(search)) {
         todayRevenue += b.price;
-        table.innerHTML += `<tr><td>${b.name}</td><td>${b.phone}</td><td>${time}</td>
+        table.innerHTML += `<tr><td>${b.name}</td><td>${b.phone}</td><td>${formatTime24(b.time)}</td>
           <td><span class="delete-btn" onclick="deleteBooking(${i})">❌</span></td></tr>`;
       }
     });
 
-    document.getElementById("dailyRevenue").innerText = "Today: $" + todayRevenue;
+    document.getElementById("dailyRevenue").innerText = "Сегодня: " + todayRevenue + " NOK";
 
     const month = new Date().toISOString().slice(0,7);
     const monthlyRevenue = bookings.filter(b=>b.date.startsWith(month)).reduce((sum,b)=>sum+b.price,0);
-    document.getElementById("monthlyRevenue").innerText = "This Month: $" + monthlyRevenue;
+    document.getElementById("monthlyRevenue").innerText = "Этот месяц: " + monthlyRevenue + " NOK";
   }
 
   function deleteBooking(index) {
@@ -249,7 +266,7 @@
     renderToday();
   }
 
-  // Notifications 15 minutes before
+  // Уведомления за 15 мин до
   if ("Notification" in window) {
     Notification.requestPermission();
   }
@@ -257,11 +274,11 @@
   setInterval(() => {
     const now = new Date();
     bookings.forEach(b => {
-      const appt = new Date(b.date);
+      const appt = new Date(b.dateTime);
       const diff = (appt - now) / 60000;
       if (diff > 14 && diff < 15) {
         if (Notification.permission === "granted") {
-          new Notification("💅 Reminder: " + b.name + " at " + appt.toLocaleTimeString());
+          new Notification("💅 Напоминание: " + b.name + " в " + formatTime24(b.time));
         }
       }
     });
