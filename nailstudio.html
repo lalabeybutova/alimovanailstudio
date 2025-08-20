@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alimova Nail Studio</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('0c662273-be1f-43ef-8657-12441dd1edb9.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+    .overlay {
+      background: rgba(255, 255, 255, 0.85);
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      overflow-y: auto;
+    }
+    header {
+      background: linear-gradient(90deg, #fce7f3, #e0e7ff, #fef3c7);
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #6b21a8;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    #login, #changePwBox {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 12px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      width: 250px;
+    }
+    button {
+      background: linear-gradient(90deg, #ec4899, #8b5cf6);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    #app {
+      display: none;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    .icon {
+      width: 24px;
+      height: 24px;
+      vertical-align: middle;
+    }
+    .delete-btn {
+      cursor: pointer;
+      color: red;
+      font-weight: bold;
+    }
+    @media (max-width: 600px) {
+      input, button { width: 90%; }
+    }
+  </style>
+</head>
+<body>
+<div class="overlay">
+  <header>💅 Alimova Nail Studio</header>
+
+  <!-- Password Screen -->
+  <div id="login">
+    <h2>🔒 Enter Password</h2>
+    <input type="password" id="password" placeholder="Enter password" />
+    <button onclick="checkPassword()">Login</button>
+    <p id="error" style="color:red; display:none;">Wrong password</p>
+    <button onclick="showChangePw()">Change Password</button>
+  </div>
+
+  <!-- Change Password Screen -->
+  <div id="changePwBox" style="display:none;">
+    <h2>🔑 Change Password</h2>
+    <input type="password" id="oldPw" placeholder="Old password" />
+    <input type="password" id="newPw" placeholder="New password" />
+    <input type="password" id="confirmPw" placeholder="Confirm new password" />
+    <button onclick="changePassword()">Save</button>
+    <button onclick="backToLogin()">Cancel</button>
+    <p id="pwError" style="color:red; display:none;">Error changing password</p>
+  </div>
+
+  <!-- Main App -->
+  <div id="app">
+    <div class="card">
+      <h2>📅 Booking Form</h2>
+      <input type="text" id="name" placeholder="Client Name" />
+      <input type="tel" id="phone" maxlength="10" placeholder="Phone (10 digits)" />
+      <input type="datetime-local" id="date" />
+      <input type="number" id="price" placeholder="Price" />
+      <button onclick="addBooking()">Add Booking</button>
+    </div>
+
+    <div class="card">
+      <h2>📋 Bookings</h2>
+      <table id="bookingTable">
+        <tr><th>Name</th><th>Phone</th><th>Date</th><th>Price</th></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>🔔 Today’s Appointments</h2>
+      <table id="todayTable">
+        <tr><th>Name</th><th>Phone</th><th>Time</th><th>Action</th></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>📊 Revenue</h2>
+      <p id="dailyRevenue">Today: $0</p>
+      <p id="monthlyRevenue">This Month: $0</p>
+    </div>
+
+    <button onclick="logout()">🚪 Logout</button>
+  </div>
+</div>
+
+<script>
+  // Password handling
+  let CORRECT_PASSWORD = localStorage.getItem("password") || "4565";
+
+  function checkPassword() {
+    const pw = document.getElementById("password").value;
+    if (pw === CORRECT_PASSWORD) {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      renderToday();
+    } else {
+      document.getElementById("error").style.display = "block";
+    }
+  }
+
+  function showChangePw() {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("changePwBox").style.display = "flex";
+  }
+
+  function backToLogin() {
+    document.getElementById("changePwBox").style.display = "none";
+    document.getElementById("login").style.display = "flex";
+  }
+
+  function changePassword() {
+    const oldPw = document.getElementById("oldPw").value;
+    const newPw = document.getElementById("newPw").value;
+    const confirmPw = document.getElementById("confirmPw").value;
+
+    if (oldPw === CORRECT_PASSWORD && newPw === confirmPw && newPw) {
+      CORRECT_PASSWORD = newPw;
+      localStorage.setItem("password", newPw);
+      alert("Password changed successfully!");
+      backToLogin();
+    } else {
+      document.getElementById("pwError").style.display = "block";
+    }
+  }
+
+  function logout() {
+    document.getElementById("app").style.display = "none";
+    document.getElementById("login").style.display = "flex";
+  }
+
+  // Booking handling
+  let bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+
+  function addBooking() {
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+    const date = document.getElementById("date").value;
+    const price = parseFloat(document.getElementById("price").value || 0);
+
+    if (name && phone && date) {
+      bookings.push({ name, phone, date, price });
+      localStorage.setItem("bookings", JSON.stringify(bookings));
+      renderBookings();
+      renderToday();
+    }
+  }
+
+  function renderBookings() {
+    const table = document.getElementById("bookingTable");
+    table.innerHTML = "<tr><th>Name</th><th>Phone</th><th>Date</th><th>Price</th></tr>";
+    bookings.forEach(b => {
+      table.innerHTML += `<tr><td>${b.name}</td><td>${b.phone}</td><td>${b.date}</td><td>$${b.price}</td></tr>`;
+    });
+  }
+
+  function renderToday() {
+    const today = new Date().toISOString().split("T")[0];
+    const table = document.getElementById("todayTable");
+    table.innerHTML = "<tr><th>Name</th><th>Phone</th><th>Time</th><th>Action</th></tr>";
+    let todayRevenue = 0;
+
+    bookings.forEach((b, i) => {
+      if (b.date.startsWith(today)) {
+        const time = b.date.split("T")[1];
+        todayRevenue += b.price;
+        table.innerHTML += `<tr><td>${b.name}</td><td>${b.phone}</td><td>${time}</td>
+          <td><span class="delete-btn" onclick="deleteBooking(${i})">❌</span></td></tr>`;
+      }
+    });
+
+    document.getElementById("dailyRevenue").innerText = "Today: $" + todayRevenue;
+
+    const month = new Date().toISOString().slice(0,7);
+    const monthlyRevenue = bookings.filter(b=>b.date.startsWith(month)).reduce((sum,b)=>sum+b.price,0);
+    document.getElementById("monthlyRevenue").innerText = "This Month: $" + monthlyRevenue;
+  }
+
+  function deleteBooking(index) {
+    bookings.splice(index,1);
+    localStorage.setItem("bookings", JSON.stringify(bookings));
+    renderBookings();
+    renderToday();
+  }
+
+  // Notifications 15 minutes before
+  if ("Notification" in window) {
+    Notification.requestPermission();
+  }
+
+  setInterval(() => {
+    const now = new Date();
+    bookings.forEach(b => {
+      const appt = new Date(b.date);
+      const diff = (appt - now) / 60000;
+      if (diff > 14 && diff < 15) {
+        if (Notification.permission === "granted") {
+          new Notification("💅 Reminder: " + b.name + " at " + appt.toLocaleTimeString());
+        }
+      }
+    });
+  }, 60000);
+
+  renderBookings();
+</script>
+</body>
+</html>
