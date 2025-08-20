@@ -5,286 +5,207 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Alimova Nail Studio</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: url('0c662273-be1f-43ef-8657-12441dd1edb9.png') no-repeat center center fixed;
-      background-size: cover;
-      color: #333;
-    }
-    .overlay {
-      background: rgba(255, 255, 255, 0.88);
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      overflow-y: auto;
-    }
-    header {
-      background: linear-gradient(90deg, #fce7f3, #e0e7ff, #fef3c7);
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      color: #6b21a8;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    #login, #changePwBox {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      gap: 12px;
-    }
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      width: 250px;
-    }
-    button {
-      background: linear-gradient(90deg, #ec4899, #8b5cf6);
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button:hover {
-      opacity: 0.9;
-    }
-    #app {
-      display: none;
-      padding: 20px;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    table, th, td {
-      border: 1px solid #ddd;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-    }
-    .delete-btn {
-      cursor: pointer;
-      color: red;
-      font-weight: bold;
-    }
-    .search-box {
-      margin: 10px 0;
-      width: 100%;
-      max-width: 300px;
-    }
-    @media (max-width: 600px) {
-      input, button { width: 90%; }
-      .search-box { width: 90%; }
-    }
+    body {margin:0;font-family:'Segoe UI',sans-serif;background:#fffafc;color:#333;}
+    header {background:linear-gradient(90deg,#fce7f3,#e0e7ff,#fef3c7);padding:20px;text-align:center;
+      font-size:26px;font-weight:bold;color:#6b21a8;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+    .overlay{padding:20px;max-width:900px;margin:auto;}
+    input,button{padding:10px;font-size:16px;border-radius:10px;border:1px solid #ccc;margin:5px;}
+    button{background:linear-gradient(90deg,#ec4899,#8b5cf6);color:#fff;border:none;cursor:pointer;}
+    button:hover{opacity:0.9;}
+    .card{background:white;padding:15px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.1);margin-bottom:20px;}
+    table{width:100%;border-collapse:collapse;}
+    th,td{border:1px solid #ddd;padding:8px;text-align:center;}
+    th{background:#fce7f3;}
+    .action-btn{cursor:pointer;margin:0 5px;font-weight:bold;}
+    .edit-btn{color:#2563eb;}
+    .delete-btn{color:red;}
+    .save-btn{color:green;}
+    .cancel-btn{color:gray;}
+    #loginCard{max-width:400px;margin:80px auto;}
   </style>
 </head>
 <body>
-<div class="overlay">
+<div class="overlay" id="app" style="display:none;">
   <header>💅 Alimova Nail Studio</header>
 
-  <!-- Вход -->
-  <div id="login">
-    <h2>🔒 Введите пароль</h2>
-    <input type="password" id="password" placeholder="Пароль" />
-    <button onclick="checkPassword()">Войти</button>
-    <p id="error" style="color:red; display:none;">Неверный пароль</p>
-    <button onclick="showChangePw()">Сменить пароль</button>
+  <!-- Добавление записи -->
+  <div class="card">
+    <h2>➕ Новая запись</h2>
+    <input type="text" id="name" placeholder="Имя клиента" />
+    <input type="tel" id="phone" placeholder="Телефон" />
+    <input type="date" id="date" />
+    <input type="time" id="time" />
+    <input type="number" id="price" placeholder="Цена (NOK)" />
+    <button onclick="addBooking()">Добавить</button>
   </div>
 
-  <!-- Смена пароля -->
-  <div id="changePwBox" style="display:none;">
-    <h2>🔑 Смена пароля</h2>
-    <input type="password" id="oldPw" placeholder="Старый пароль" />
-    <input type="password" id="newPw" placeholder="Новый пароль" />
-    <input type="password" id="confirmPw" placeholder="Подтвердите пароль" />
-    <button onclick="changePassword()">Сохранить</button>
-    <button onclick="backToLogin()">Отмена</button>
-    <p id="pwError" style="color:red; display:none;">Ошибка смены пароля</p>
+  <!-- Все записи -->
+  <div class="card">
+    <h2>📋 Все записи</h2>
+    <input type="text" id="searchAll" placeholder="🔍 Поиск по имени..." oninput="renderBookings()" />
+    <table id="bookingTable">
+      <tr><th>Имя</th><th>Телефон</th><th>Дата</th><th>Время</th><th>Цена</th><th>Действия</th></tr>
+    </table>
   </div>
 
-  <!-- Приложение -->
-  <div id="app">
-    <div class="card">
-      <h2>📅 Запись клиента</h2>
-      <input type="text" id="name" placeholder="Имя клиента" />
-      <input type="tel" id="phone" maxlength="10" placeholder="Телефон (10 цифр)" />
-      <input type="date" id="date" />
-      <input type="time" id="time" />
-      <input type="number" id="price" placeholder="Цена (NOK)" />
-      <button onclick="addBooking()">Добавить запись</button>
-    </div>
+  <!-- Доход -->
+  <div class="card">
+    <h2>📊 Доход</h2>
+    <p id="dailyRevenue">Сегодня: 0 NOK</p>
+    <p id="monthlyRevenue">Этот месяц: 0 NOK</p>
+  </div>
 
-    <div class="card">
-      <h2>📋 Все записи</h2>
-      <input type="text" class="search-box" id="searchAll" placeholder="🔍 Поиск по имени..." oninput="renderBookings()" />
-      <table id="bookingTable">
-        <tr><th>Имя</th><th>Телефон</th><th>Дата</th><th>Время</th><th>Цена</th></tr>
-      </table>
-    </div>
+  <button onclick="logout()">🚪 Выйти</button>
+</div>
 
-    <div class="card">
-      <h2>🔔 Записи на сегодня</h2>
-      <input type="text" class="search-box" id="searchToday" placeholder="🔍 Поиск по имени..." oninput="renderToday()" />
-      <table id="todayTable">
-        <tr><th>Имя</th><th>Телефон</th><th>Время</th><th>Действие</th></tr>
-      </table>
-    </div>
-
-    <div class="card">
-      <h2>📊 Доход</h2>
-      <p id="dailyRevenue">Сегодня: 0 NOK</p>
-      <p id="monthlyRevenue">Этот месяц: 0 NOK</p>
-    </div>
-
-    <button onclick="logout()">🚪 Выйти</button>
+<!-- Экран входа -->
+<div id="loginCard" class="card">
+  <h2>🔒 Вход</h2>
+  <input type="password" id="loginPassword" placeholder="Пароль" />
+  <button onclick="login()">Войти</button>
+  <p style="margin-top:10px;"><a href="#" onclick="showChangePassword()">Сменить пароль</a></p>
+  <div id="changePasswordBox" style="display:none;margin-top:10px;">
+    <input type="password" id="oldPass" placeholder="Старый пароль" />
+    <input type="password" id="newPass" placeholder="Новый пароль" />
+    <input type="password" id="confirmPass" placeholder="Повторите пароль" />
+    <button onclick="changePassword()">Сменить</button>
   </div>
 </div>
 
 <script>
-  // Пароль
-  let CORRECT_PASSWORD = localStorage.getItem("password") || "4565";
+let bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+let password = localStorage.getItem("password") || "4565";
 
-  function checkPassword() {
-    const pw = document.getElementById("password").value;
-    if (pw === CORRECT_PASSWORD) {
-      document.getElementById("login").style.display = "none";
-      document.getElementById("app").style.display = "block";
-      renderToday();
-    } else {
-      document.getElementById("error").style.display = "block";
-    }
-  }
+function formatTime24(t){
+  if(!t) return "";
+  const [h,m] = t.split(":");
+  return ("0"+h).slice(-2)+":"+("0"+m).slice(-2);
+}
 
-  function showChangePw() {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("changePwBox").style.display = "flex";
-  }
-
-  function backToLogin() {
-    document.getElementById("changePwBox").style.display = "none";
-    document.getElementById("login").style.display = "flex";
-  }
-
-  function changePassword() {
-    const oldPw = document.getElementById("oldPw").value;
-    const newPw = document.getElementById("newPw").value;
-    const confirmPw = document.getElementById("confirmPw").value;
-
-    if (oldPw === CORRECT_PASSWORD && newPw === confirmPw && newPw) {
-      CORRECT_PASSWORD = newPw;
-      localStorage.setItem("password", newPw);
-      alert("Пароль успешно изменён!");
-      backToLogin();
-    } else {
-      document.getElementById("pwError").style.display = "block";
-    }
-  }
-
-  function logout() {
-    document.getElementById("app").style.display = "none";
-    document.getElementById("login").style.display = "flex";
-  }
-
-  // Форматирование времени в 24ч
-  function formatTime24(t) {
-    if (!t) return "";
-    const [h, m] = t.split(":");
-    return ("0" + h).slice(-2) + ":" + ("0" + m).slice(-2);
-  }
-
-  // Записи
-  let bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
-
-  function addBooking() {
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
-    const date = document.getElementById("date").value;
-    const time = document.getElementById("time").value;
-    const price = parseFloat(document.getElementById("price").value || 0);
-
-    if (name && phone && date && time) {
-      const formattedTime = formatTime24(time);
-      const dateTime = date + "T" + formattedTime;
-      bookings.push({ name, phone, date, time: formattedTime, dateTime, price });
-      localStorage.setItem("bookings", JSON.stringify(bookings));
-      renderBookings();
-      renderToday();
-    }
-  }
-
-  function renderBookings() {
-    const search = document.getElementById("searchAll").value.toLowerCase();
-    const table = document.getElementById("bookingTable");
-    table.innerHTML = "<tr><th>Имя</th><th>Телефон</th><th>Дата</th><th>Время</th><th>Цена</th></tr>";
-    bookings
-      .filter(b => b.name.toLowerCase().includes(search))
-      .forEach(b => {
-        table.innerHTML += `<tr><td>${b.name}</td><td>${b.phone}</td><td>${b.date}</td><td>${formatTime24(b.time)}</td><td>${b.price} NOK</td></tr>`;
-      });
-  }
-
-  function renderToday() {
-    const today = new Date().toISOString().split("T")[0];
-    const search = document.getElementById("searchToday").value.toLowerCase();
-    const table = document.getElementById("todayTable");
-    table.innerHTML = "<tr><th>Имя</th><th>Телефон</th><th>Время</th><th>Действие</th></tr>";
-    let todayRevenue = 0;
-
-    bookings.forEach((b, i) => {
-      if (b.date === today && b.name.toLowerCase().includes(search)) {
-        todayRevenue += b.price;
-        table.innerHTML += `<tr><td>${b.name}</td><td>${b.phone}</td><td>${formatTime24(b.time)}</td>
-          <td><span class="delete-btn" onclick="deleteBooking(${i})">❌</span></td></tr>`;
-      }
-    });
-
-    document.getElementById("dailyRevenue").innerText = "Сегодня: " + todayRevenue + " NOK";
-
-    const month = new Date().toISOString().slice(0,7);
-    const monthlyRevenue = bookings.filter(b=>b.date.startsWith(month)).reduce((sum,b)=>sum+b.price,0);
-    document.getElementById("monthlyRevenue").innerText = "Этот месяц: " + monthlyRevenue + " NOK";
-  }
-
-  function deleteBooking(index) {
-    bookings.splice(index,1);
-    localStorage.setItem("bookings", JSON.stringify(bookings));
+// --- Логин и пароли ---
+function login(){
+  const pass = document.getElementById("loginPassword").value;
+  if(pass===password){
+    document.getElementById("loginCard").style.display="none";
+    document.getElementById("app").style.display="block";
     renderBookings();
-    renderToday();
-  }
+    askNotificationPermission();
+  } else { alert("Неверный пароль!"); }
+}
+function logout(){
+  document.getElementById("app").style.display="none";
+  document.getElementById("loginCard").style.display="block";
+}
+function showChangePassword(){
+  document.getElementById("changePasswordBox").style.display="block";
+}
+function changePassword(){
+  const oldP=document.getElementById("oldPass").value;
+  const newP=document.getElementById("newPass").value;
+  const confirmP=document.getElementById("confirmPass").value;
+  if(oldP!==password){alert("Старый пароль неверный");return;}
+  if(newP!==confirmP){alert("Пароли не совпадают");return;}
+  password=newP;localStorage.setItem("password",password);
+  alert("Пароль изменён!");
+  document.getElementById("changePasswordBox").style.display="none";
+}
 
-  // Уведомления за 15 мин до
-  if ("Notification" in window) {
-    Notification.requestPermission();
-  }
-
-  setInterval(() => {
-    const now = new Date();
-    bookings.forEach(b => {
-      const appt = new Date(b.dateTime);
-      const diff = (appt - now) / 60000;
-      if (diff > 14 && diff < 15) {
-        if (Notification.permission === "granted") {
-          new Notification("💅 Напоминание: " + b.name + " в " + formatTime24(b.time));
-        }
-      }
-    });
-  }, 60000);
-
+// --- Записи ---
+function addBooking(){
+  const name=document.getElementById("name").value;
+  const phone=document.getElementById("phone").value;
+  const date=document.getElementById("date").value;
+  const time=document.getElementById("time").value;
+  const price=parseFloat(document.getElementById("price").value)||0;
+  if(!name||!phone||!date||!time){alert("Заполните все поля");return;}
+  bookings.push({name,phone,date,time:formatTime24(time),dateTime:date+"T"+time,price});
+  localStorage.setItem("bookings",JSON.stringify(bookings));
   renderBookings();
+  document.getElementById("name").value=document.getElementById("phone").value=
+  document.getElementById("date").value=document.getElementById("time").value=
+  document.getElementById("price").value="";
+}
+
+function renderBookings(){
+  const search=document.getElementById("searchAll").value?.toLowerCase()||"";
+  const table=document.getElementById("bookingTable");
+  table.innerHTML="<tr><th>Имя</th><th>Телефон</th><th>Дата</th><th>Время</th><th>Цена</th><th>Действия</th></tr>";
+  bookings.filter(b=>b.name.toLowerCase().includes(search))
+    .forEach((b,i)=>{
+      table.innerHTML+=`
+      <tr id="row-${i}">
+        <td>${b.name}</td><td>${b.phone}</td><td>${b.date}</td>
+        <td>${formatTime24(b.time)}</td><td>${b.price} NOK</td>
+        <td>
+          <span class="action-btn edit-btn" onclick="editBooking(${i})">✏️</span>
+          <span class="action-btn delete-btn" onclick="deleteBooking(${i})">❌</span>
+        </td>
+      </tr>`;
+    });
+  updateRevenue();
+}
+
+function editBooking(i){
+  const b=bookings[i];
+  const row=document.getElementById("row-"+i);
+  row.innerHTML=`
+    <td contenteditable="true">${b.name}</td>
+    <td contenteditable="true">${b.phone}</td>
+    <td contenteditable="true">${b.date}</td>
+    <td contenteditable="true">${formatTime24(b.time)}</td>
+    <td contenteditable="true">${b.price}</td>
+    <td>
+      <span class="action-btn save-btn" onclick="saveEdit(${i})">💾</span>
+      <span class="action-btn cancel-btn" onclick="renderBookings()">❌</span>
+    </td>`;
+}
+function saveEdit(i){
+  const cells=document.getElementById("row-"+i).children;
+  const name=cells[0].innerText;
+  const phone=cells[1].innerText;
+  const date=cells[2].innerText;
+  const time=cells[3].innerText;
+  const price=parseFloat(cells[4].innerText)||0;
+  bookings[i]={name,phone,date,time:formatTime24(time),dateTime:date+"T"+time,price};
+  localStorage.setItem("bookings",JSON.stringify(bookings));
+  renderBookings();
+}
+function deleteBooking(i){
+  if(confirm("Удалить запись?")){
+    bookings.splice(i,1);
+    localStorage.setItem("bookings",JSON.stringify(bookings));
+    renderBookings();
+  }
+}
+
+// --- Доход ---
+function updateRevenue(){
+  const today=new Date().toISOString().split("T")[0];
+  const month=new Date().toISOString().slice(0,7);
+  let todayRev=0,monthRev=0;
+  bookings.forEach(b=>{
+    if(b.date===today) todayRev+=b.price;
+    if(b.date.startsWith(month)) monthRev+=b.price;
+  });
+  document.getElementById("dailyRevenue").innerText="Сегодня: "+todayRev+" NOK";
+  document.getElementById("monthlyRevenue").innerText="Этот месяц: "+monthRev+" NOK";
+}
+
+// --- Уведомления ---
+function askNotificationPermission(){
+  if(Notification.permission!=="granted"){Notification.requestPermission();}
+  setInterval(checkReminders,60000);
+}
+function checkReminders(){
+  const now=new Date();
+  bookings.forEach(b=>{
+    const bookingTime=new Date(b.dateTime);
+    const diff=(bookingTime-now)/60000;
+    if(diff>14&&diff<16){
+      new Notification("💅 Напоминание: "+b.name+" в "+formatTime24(b.time));
+    }
+  });
+}
 </script>
 </body>
 </html>
